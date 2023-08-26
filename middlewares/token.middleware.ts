@@ -16,7 +16,6 @@ export const verifyToken: RequestHandler = (req, _res, next) => {
         email: string;
         userId: string;
       };
-      console.log({ decoded });
       req.body.userId = userId;
       req.body.email = email;
       next();

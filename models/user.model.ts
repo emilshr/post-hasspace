@@ -4,7 +4,6 @@ export interface User {
   name: string;
   email: string;
   hashedPassword: string;
-  age: number;
 }
 
 const UserSchema = new Schema<User>({

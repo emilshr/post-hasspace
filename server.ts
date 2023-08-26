@@ -1,48 +1,22 @@
-import express from "express";
-import expressWinston from "express-winston";
-import winston from "winston";
-import http from "http";
-import { connectToDatabase } from "./config/db";
-import cors from "cors";
-import { errorHandler } from "./middlewares/error-handler.middleware";
-import { router } from "./routers";
-import { config } from "./config/config";
+import cluster, { Worker } from "cluster";
+import os from "os";
+import * as Server from "./express-server";
 
-const app = express();
+if (cluster.isPrimary) {
+  const cores = os.cpus().length;
 
-app.use(express.json());
-app.use(cors());
-app.use(express.urlencoded({ extended: true }));
+  console.log(`Total cores: ${cores}`);
+  console.log(`Primary process ${process.pid} is running`);
 
-app.use(
-  expressWinston.logger({
-    transports: [new winston.transports.Console()],
-    format: winston.format.combine(
-      winston.format.prettyPrint({
-        colorize: config.environment === "development",
-      })
-    ),
-    // level: config.environment === "development" ? "debug" : "info",
-    expressFormat: true,
-    colorize: true,
-  })
-);
+  for (let i = 0; i < cores; i++) {
+    cluster.fork();
+  }
 
-const server = http.createServer(app);
-
-app.get("/", (req, res) => {
-  res.send({ message: "OK" });
-});
-
-const { PORT = 3000 } = process.env;
-
-app.use("/api", router);
-
-app.use(errorHandler);
-
-export async function start() {
-  await connectToDatabase();
-  server.listen(PORT, () => {
-    console.debug(`Server listening at PORT: ${PORT}`);
+  cluster.on("exit", (worker: Worker, code) => {
+    console.log(`Worker ${worker.process.pid} exited with code ${code}`);
+    console.log("Fork new worker!");
+    cluster.fork();
   });
+} else {
+  Server.start();
 }

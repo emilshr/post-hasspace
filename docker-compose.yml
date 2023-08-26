@@ -1,0 +1,19 @@
+version: "3.0"
+services:
+  app:
+    container_name: post-hasspace
+    build: ./
+    restart: always
+    ports:
+      - 3001:${PORT}
+    links:
+      - mongodb
+    environment:
+      - DB_URL=mongodb://localhost:${MONGO_PORT}/hasspace
+  mongodb:
+    container_name: post-mongodb
+    image: mongo
+    volumes:
+      - ./data:/data/db
+    ports:
+      - 27017:${MONGO_PORT}
