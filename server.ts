@@ -1,44 +1,44 @@
 import express from "express";
-import { Server } from "socket.io";
+import expressWinston from "express-winston";
+import winston from "winston";
 import http from "http";
 import { connectToDatabase } from "./config/db";
-import { authRouter } from "./routers/auth.router";
-import { inboxRouter } from "./routers/inbox.router";
-import { messageRouter } from "./routers/message.router";
 import cors from "cors";
 import { errorHandler } from "./middlewares/error-handler.middleware";
+import { router } from "./routers";
+import { config } from "./config/config";
 
 const app = express();
+
 app.use(express.json());
 app.use(cors());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  expressWinston.logger({
+    transports: [new winston.transports.Console()],
+    format: winston.format.combine(
+      winston.format.prettyPrint({
+        colorize: config.environment === "development",
+      })
+    ),
+    // level: config.environment === "development" ? "debug" : "info",
+    expressFormat: true,
+    colorize: true,
+  })
+);
 
 const server = http.createServer(app);
-
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
-});
 
 app.get("/", (req, res) => {
   res.send({ message: "OK" });
 });
 
-io.on("connection", (socket) => {
-  console.log("User connected", socket.client.request.headers.origin);
-  socket.on("message", (args) => {
-    console.log("data received", { args });
-  });
-});
-
 const { PORT = 3000 } = process.env;
 
-app.use(errorHandler);
+app.use("/api", router);
 
-app.use("/auth", authRouter);
-app.use("/inbox", inboxRouter);
-app.use("/message", messageRouter);
+app.use(errorHandler);
 
 (async () => {
   await connectToDatabase();

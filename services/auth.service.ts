@@ -1,39 +1,40 @@
-import { UserModel } from "../models/schema";
+import { UserModel } from "../models/user.model";
 import { comparePasswords, hashPassword, signToken } from "./password.service";
 
-export const login = async (username: string, password: string) => {
+export const login = async (email: string, password: string) => {
   try {
-    const user = await UserModel.findOne({ where: { username } });
+    const user = await UserModel.findOne({ where: { email } });
     if (user) {
-      const isPasswordValid = comparePasswords(
-        password,
-        user.dataValues.hashedPassword
-      );
+      const isPasswordValid = comparePasswords(password, user.hashedPassword);
       if (isPasswordValid) {
-        const accessToken = signToken(username, user.dataValues.userId);
+        const accessToken = signToken(email, user.id);
         return {
-          userId: user.dataValues.userId,
-          username,
+          userId: user.id,
+          email,
           accessToken,
         };
       }
     }
-    throw new Error("invalid login");
+    throw new Error("Invalid credentials");
   } catch (error) {
     console.error(`Error while logging in ... ${error}`);
     throw error;
   }
 };
 
-export const signUp = async (username: string, password: string) => {
+export const signUp = async (email: string, name: string, password: string) => {
   try {
-    const user = await UserModel.findOne({ where: { username } });
+    const user = await UserModel.findOne({ where: { email } });
     if (user) {
       throw new Error("duplicate user found");
     }
     const hashedPassword = hashPassword(password);
-    const createdUser = await UserModel.create({ username, hashedPassword });
-    return !!createdUser;
+    const createdUser = await UserModel.create({
+      email,
+      name,
+      hashedPassword,
+    });
+    return signToken(email, createdUser.id);
   } catch (error) {
     console.error(`Error while logging in ... ${error}`);
     throw error;

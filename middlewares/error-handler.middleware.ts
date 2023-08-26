@@ -1,8 +1,8 @@
 import { ErrorRequestHandler } from "express";
 
-export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  if (err) {
-    res.status(500).json({ status: "Error", stack: err.stack }).end();
+export const errorHandler: ErrorRequestHandler = (err, _req, res, next) => {
+  if (err instanceof Error) {
+    res.status(500).json({ status: "Error", stack: err.message }).end();
   } else {
     next();
   }
