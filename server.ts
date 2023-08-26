@@ -40,9 +40,9 @@ app.use("/api", router);
 
 app.use(errorHandler);
 
-(async () => {
+export async function start() {
   await connectToDatabase();
   server.listen(PORT, () => {
     console.debug(`Server listening at PORT: ${PORT}`);
   });
-})();
+}

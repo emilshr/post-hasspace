@@ -4,7 +4,7 @@
   "description": "Task assignment for has-space",
   "main": "server.ts",
   "scripts": {
-    "dev": "env-cmd -f .env nodemon server.ts",
+    "dev": "env-cmd -f .env nodemon server-cluster.ts",
     "start": "env-cmd -f .env node build/server.js",
     "build": "esbuild server.ts --bundle --platform=node --target=node20.3 --outdir='./build' --allow-overwrite --packages=external",
     "tsc": "tsc --skipLibCheck"
