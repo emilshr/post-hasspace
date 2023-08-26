@@ -6,8 +6,8 @@ export const comparePasswords = (password: string, toBeCompared: string) => {
   return bcrypt.compareSync(password, toBeCompared);
 };
 
-export const signToken = (username: string, userId: string) => {
-  return jwt.sign({ username, userId }, config.secret, { expiresIn: "10d" });
+export const signToken = (email: string, userId: string) => {
+  return jwt.sign({ email, userId }, config.secret, { expiresIn: "10d" });
 };
 
 export const hashPassword = (password: string) => {

@@ -12,12 +12,13 @@ export const verifyToken: RequestHandler = (req, _res, next) => {
       if (err) {
         throw new Error("unauthorized");
       }
-      const { userId, username } = decoded as {
-        username: string;
+      const { userId, email } = decoded as {
+        email: string;
         userId: string;
       };
+      console.log({ decoded });
       req.body.userId = userId;
-      req.body.username = username;
+      req.body.email = email;
       next();
     });
   }

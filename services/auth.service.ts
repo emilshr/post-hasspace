@@ -3,7 +3,7 @@ import { comparePasswords, hashPassword, signToken } from "./password.service";
 
 export const login = async (email: string, password: string) => {
   try {
-    const user = await UserModel.findOne({ where: { email } });
+    const user = await UserModel.findOne({ email });
     if (user) {
       const isPasswordValid = comparePasswords(password, user.hashedPassword);
       if (isPasswordValid) {

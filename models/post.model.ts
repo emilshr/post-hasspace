@@ -12,15 +12,13 @@ const PostSchema = new Schema<Post>({
     required: true,
   },
   content: {
-    type: Number,
+    type: String,
     required: false,
   },
-  userId: [
-    {
-      type: Types.ObjectId,
-      ref: "User",
-    },
-  ],
+  userId: {
+    type: "ObjectId",
+    ref: "User",
+  },
 });
 
 export const PostModel = model("Post", PostSchema);

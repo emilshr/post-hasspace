@@ -1,5 +1,4 @@
-import { Request, RequestHandler } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
+import { RequestHandler } from "express";
 import { ZodSchema } from "zod";
 
 export const zodSchemaBodyValidator = <
@@ -11,6 +10,23 @@ export const zodSchemaBodyValidator = <
 ): RequestHandler<TParams, any, TBody, TQuery> => {
   return (req, _res, next) => {
     const result = zodSchema.safeParse(req.body);
+    if (!result.success) {
+      throw new Error(JSON.stringify(result.error));
+    } else {
+      next();
+    }
+  };
+};
+
+export const zodSchemaQueryParamsValidator = <
+  TParams = any,
+  TQuery = any,
+  TBody = any
+>(
+  zodSchema: ZodSchema<TQuery>
+): RequestHandler<TParams, any, TBody, TQuery> => {
+  return (req, _res, next) => {
+    const result = zodSchema.safeParse(req.query);
     if (!result.success) {
       throw new Error(JSON.stringify(result.error));
     } else {
